@@ -48,8 +48,7 @@ def base64url_encode(content):
 
 def getDIDDocument(did: str, net: str):
     _result = request.resolve_did(did=did, net=net)
-    _did = _result["did"].replace("did", "").replace("elastos", "").replace(":",
-                                                                            "")
+    _did = _result["did"].replace("did:", "").replace("elastos:", "")
     _status = _result["status"]
     _tx = _result["transaction"]
     # TODO: check _status
@@ -59,10 +58,9 @@ def getDIDDocument(did: str, net: str):
     return json.loads(base64url_decode(_payload))
 
 
-# def GetPubKeyStrFromDID(did: str, net="mainnet") -> str:
 def get_publickey_from_did(did: str, net="mainnet") -> str:
     if len(did) != 34:
-        did = did.replace("did", "").replace("elastos", "").replace(":", "")
+        did = did.replace("did:", "").replace("elastos:", "")
     assert len(did) == 34
     _document = getDIDDocument(did, net)
     _pubKeys = _document["publicKey"]
@@ -95,7 +93,6 @@ class JWT:
         return jwt.get_unverified_header(jwt_token)
 
 
-# def GetDIDFromJwt(jwt_token):
 def get_did_from_jwt(jwt_token):
     _payload = JWT.decode(jwt_token, verify=False)
     return _payload['iss']
