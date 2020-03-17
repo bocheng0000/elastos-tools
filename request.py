@@ -12,9 +12,11 @@
 import requests
 from retrying import retry
 
-mainnet_resolver = "http://api.elastos.io:20606"
-testnet_resolver = "http://api.elastos.io:21606"
-regtest_resolver = "http://api.elastos.io:22606"
+resolver = {
+    "mainnet": "http://api.elastos.io:20606",
+    "testnet": "http://api.elastos.io:21606",
+    "regtest": "http://api.elastos.io:22606"
+}
 
 
 def post_request(url: str, method, params={}, user="", password=""):
@@ -34,12 +36,7 @@ def post_request(url: str, method, params={}, user="", password=""):
 
 @retry(stop_max_attempt_number=5)
 def resolve_did(did, net="mainnet", all=False, user="", password=""):
-    if net == "testnet":
-        url = testnet_resolver
-    elif net == 'regtest':
-        url = regtest_resolver
-    else:
-        url = mainnet_resolver
+    url = resolver[net]
     resp = post_request(url, "resolvedid", params={"did": did, "all": all},
                         user=user, password=password)
     if resp is not None:
