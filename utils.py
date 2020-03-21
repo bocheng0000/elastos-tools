@@ -1,4 +1,5 @@
 # Copyright (c) 2020, Bocheng Zhang
+# Copyright (c) 2018 Jimmy Song
 # Copyright (c) 2016-2017, Neil Booth
 #
 # All rights reserved.
@@ -26,10 +27,26 @@
 
 import base58
 import base64
+import hashlib
 import json
 import jwt
 
 import request
+
+
+def hash160(s):
+    return hashlib.new('ripemd160', hashlib.sha256(s).digest()).digest()
+
+
+def SHA256D(x):
+    '''SHA-256 of SHA-256, as used extensively in bitcoin.'''
+    return hashlib.sha256(hashlib.sha256(x).digest()).digest()
+
+
+def encode_base58_checksum(s, hash_fn=SHA256D):
+    """Encodes a payload bytearray (which includes the version byte(s))
+    into a Base58Check string."""
+    return base58.b58encode(s + hash_fn(s)[:4]).decode('ascii')
 
 
 def base64url_decode(content):
@@ -46,7 +63,7 @@ def base64url_encode(content):
     return base64.urlsafe_b64encode(content).replace(b'=', b'')
 
 
-def getDIDDocument(did: str, net: str):
+def get_did_document(did: str, net: str):
     _result = request.resolve_did(did=did, net=net)
     _did = _result["did"].replace("did:", "").replace("elastos:", "")
     _status = _result["status"]
@@ -62,7 +79,7 @@ def get_publickey_from_did(did: str, net="mainnet") -> str:
     if len(did) != 34:
         did = did.replace("did:", "").replace("elastos:", "")
     assert len(did) == 34
-    _document = getDIDDocument(did, net)
+    _document = get_did_document(did, net)
     _pubKeys = _document["publicKey"]
     _pubKey = ""
     for _key in _pubKeys:
@@ -78,15 +95,14 @@ class JWT:
         return jwt.encode(payload=payload, key=key, algorithm=algorithm)
 
     @staticmethod
-    def decode(jwt_token: str, key='', verify=True, algorithms='ES256',
+    def decode(jwt_token: str, key='', verify=True, algorithms=None,
                audience=None):
         try:
             payload = jwt.decode(jwt=jwt_token, key=key, algorithms=algorithms,
-                                 verify=verify,
-                                 audience=audience)
+                                 verify=verify, audience=audience)
             return payload
         except jwt.ExpiredSignatureError as e:
-            print(e)
+            print(f'Error:[{e}]')
 
     @staticmethod
     def get_header(jwt_token: str):
