@@ -20,7 +20,7 @@ The functions below are supported:
 3. export compressed/uncompressed key string or pem format
 4. verify jwt-token
 5. get address or did from public/private key
-
+6. get did, address, private key and public key from mnemonic word
 More functions will be added soon.
 
  The example of the functions above is in `main.py`

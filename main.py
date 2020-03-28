@@ -8,18 +8,18 @@
 @file: main
 @time: 2020/3/16 17:58
 """
-
+import hd
 import keys
-from utils import *
+import utils
 
 if __name__ == '__main__':
-    # Function-1: get DID from jwt-token
+    print('Example-1: get DID from jwt-token')
     jwt_token = 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkaWQ6ZWxhc3RvczppWXBRTXdoZUR4eVNxaXZvY1NKYW9wcmNvRFRxUXNEWUF1IiwiY2FsbGJhY2t1cmwiOiJodHRwczovL3N0YWdpbmctYXBpLmN5YmVycmVwdWJsaWMub3JnL2FwaS91c2VyL2xvZ2luLWNhbGxiYWNrLWVsYSIsIm5vbmNlIjoiOWVkMzFlNzQtOTU5Mi00ZjFmLWE4MDctODkxZjI4NTg1NjYxIiwiY2xhaW1zIjp7fSwid2Vic2l0ZSI6eyJkb21haW4iOiJodHRwczovL3N0YWdpbmcuY3liZXJyZXB1YmxpYy5vcmciLCJsb2dvIjoiaHR0cHM6Ly9zdGFnaW5nLmN5YmVycmVwdWJsaWMub3JnL2Fzc2V0cy9pbWFnZXMvbG9nby5zdmcifSwiaWF0IjoxNTg0Nzk5NzU0LCJleHAiOjE1ODU0MDQ1NTR9.2W5CSuDgm60eJYvSi_ekujfAb84OIvau7OKCvXM6ZRPWAmrk3f4AaFULr2Syxtd9GH9P_4-_QyJXo-TAADLAUw'
-    did = get_did_from_jwt(jwt_token)
+    did = utils.get_did_from_jwt(jwt_token)
     print(f'DID:\n{did}')
 
-    # Function-2: get public key from DID
-    public_key_str = get_publickey_from_did(did=did, net='regtest')
+    print('\nExample-2: get public key from DID')
+    public_key_str = utils.get_publickey_from_did(did=did, net='regtest')
     print(f'Compressed Public Key:\n{public_key_str}')
 
     # Import Public Key from compressesed public key string
@@ -34,6 +34,23 @@ if __name__ == '__main__':
     print(f"Public Key'y:[{hex(pubKey.verifying_key.pubkey.point.y())}]")
 
     # Verify JWT-Token
-    jwt_decode = JWT.decode(jwt_token=jwt_token, key=public_key_pem,
-                            verify=True)
+    jwt_decode = utils.JWT.decode(jwt_token=jwt_token, key=public_key_pem,
+                                  verify=True)
     print(f'JWT-Payload:\n{jwt_decode}')
+
+    print(
+        f'\nExample-3: get DID, address, private key, public key from mnemonic word')
+    mnemonic_word = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'
+    passphrase = ''
+    private_keys = hd.get_private_key_from_mnemonic(mnemonic=mnemonic_word,
+                                                    num=20)
+    title = f'{"Index":6}{"DID":36}{"Private Key":66}{"Public Key":68}{"Address"}'
+    print(title)
+    print('=' * len(title))
+    for i in range(len(private_keys)):
+        _prv = private_keys[i]
+        _p = keys.PrivateKey.from_string(_prv)
+        _pub = _p.verifying_key.to_string()
+        _did = _p.get_did()
+        _address = _p.get_address()
+        print(f'{i:5} {_did:36}{_prv:66}{_pub:68}{_address}')

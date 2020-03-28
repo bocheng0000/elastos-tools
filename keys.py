@@ -106,7 +106,6 @@ class PrivateKey(object):
         self.curve = curve
         self.verifying_key = self.get_verifying_key()
 
-
     @staticmethod
     def from_string(key_str: str, curve='r1'):
         assert len(key_str) == 64

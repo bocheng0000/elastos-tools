@@ -30,8 +30,14 @@ import base64
 import hashlib
 import json
 import jwt
+from mnemonic import Mnemonic
 
 import request
+
+
+def get_bip39_seed_from_mnemonic(mnemonic: str, passphrase='') -> bytes:
+    seed = Mnemonic.to_seed(mnemonic=mnemonic, passphrase=passphrase)
+    return seed
 
 
 def hash160(s):
@@ -47,6 +53,16 @@ def encode_base58_checksum(s, hash_fn=SHA256D):
     """Encodes a payload bytearray (which includes the version byte(s))
     into a Base58Check string."""
     return base58.b58encode(s + hash_fn(s)[:4]).decode('ascii')
+
+
+def decode_check(txt, hash_fn=SHA256D):
+    '''Decodes a Base58Check-encoded string to a payload.  The version
+    prefixes it.'''
+    be_bytes = base58.b58decode(txt)
+    result, check = be_bytes[:-4], be_bytes[-4:]
+    if check != hash_fn(result)[:4]:
+        raise Exception('invalid base 58 checksum for {}'.format(txt))
+    return result
 
 
 def base64url_decode(content):
