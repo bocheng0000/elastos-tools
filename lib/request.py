@@ -12,7 +12,7 @@
 import requests
 from retrying import retry
 
-resolver = {
+resolver_did = {
     "mainnet": "http://api.elastos.io:20606",
     "testnet": "http://api.elastos.io:21606",
     "regtest": "http://api.elastos.io:22606"
@@ -36,8 +36,42 @@ def post_request(url: str, method, params={}, user="", password=""):
 
 @retry(stop_max_attempt_number=5)
 def resolve_did(did, net="mainnet", all=False, user="", password=""):
-    url = resolver[net]
+    url = resolver_did[net]
     resp = post_request(url, "resolvedid", params={"did": did, "all": all},
+                        user=user, password=password)
+    if resp is not None:
+        return resp["result"]
+    else:
+        return resp
+
+
+@retry(stop_max_attempt_number=5)
+def get_raw_transaction(txid, net="mainnet", user="", password=""):
+    url = resolver_did[net]
+    resp = post_request(url, "getrawtransaction",
+                        params={"txid": txid, "verbose": False},
+                        user=user, password=password)
+    if resp is not None:
+        return resp["result"]
+    else:
+        return resp
+
+
+@retry(stop_max_attempt_number=5)
+def send_raw_transaction(raw, net="mainnet", user="", password=""):
+    url = resolver_did[net]
+    resp = post_request(url, "sendrawtransaction", params={"data": raw},
+                        user=user, password=password)
+    if resp is not None:
+        return resp["result"]
+    else:
+        return resp
+
+
+@retry(stop_max_attempt_number=5)
+def get_raw_mempool(net="mainnet", user="", password=""):
+    url = resolver_did[net]
+    resp = post_request(url, "getrawmempool", params={},
                         user=user, password=password)
     if resp is not None:
         return resp["result"]

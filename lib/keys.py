@@ -28,13 +28,21 @@
 from ecdsa import SigningKey as EcdsaSigningKey, \
     VerifyingKey as EcdsaVerifyingKey, curves
 
-from utils import hash160, encode_base58_checksum
+import struct
+
+from lib.util import hash160, encode_base58_checksum
 
 Prefix = {
     'ela': b'\x21',
     'did': b'\x67',
     'btc': b'\x00'
 }
+
+# Address Type
+STANDARD = 0xAC
+REGISTERID = 0xAD
+MULTISIG = 0xAE
+CROSSCHAIN = 0xAF
 
 
 class PublicKey(object):
@@ -75,6 +83,18 @@ class PublicKey(object):
     def to_pem(self):
         return self.verifying_key.to_pem().decode('ascii')
 
+    def to_code(self, as_hex=True):
+        pub_bytes = self.to_bytes()
+        data_list = []
+        data_list.append(struct.pack("B", len(pub_bytes)))
+        data_list.append(pub_bytes)
+        data_list.append(struct.pack("B", STANDARD))
+        result = b''.join(data_list)
+        if as_hex:
+            return result.hex()
+        else:
+            return result
+
     def h160(self, coin='ela'):
         _pubkey = self.to_bytes()
         _redeemscript = _pubkey
@@ -86,11 +106,14 @@ class PublicKey(object):
                 'ad')
         return hash160(_redeemscript)
 
-    def address(self, coin='ela'):
-        '''Returns the address string'''
+    def script(self, coin='ela'):
         prefix = Prefix[coin]
         h160 = self.h160(coin)
-        return encode_base58_checksum(prefix + h160)
+        return prefix + h160
+
+    def address(self, coin='ela'):
+        '''Returns the address string'''
+        return encode_base58_checksum(self.script(coin))
 
     def did(self, coin='did'):
         '''Returns the did string'''

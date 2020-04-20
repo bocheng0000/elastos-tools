@@ -22,14 +22,13 @@ from binascii import unhexlify
 from hashlib import sha512
 from hmac import HMAC
 
-from ecc import PrivateKey, N
-from utils import (
+from lib.ecc import PrivateKey, N
+from lib.util import (
     encode_base58_checksum,
     get_bip39_seed_from_mnemonic,
     hash160
 )
 
-PBKDF2_ROUNDS = 2048
 p2pkh_prefixes = (b'\x00', b'\x6f')
 p2sh_prefixes = (b'\x05', b'\xc4')
 

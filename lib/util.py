@@ -31,8 +31,66 @@ import hashlib
 import json
 import jwt
 from mnemonic import Mnemonic
+from struct import Struct
 
-import request
+from lib import request
+
+
+def bytes_to_int(be_bytes):
+    '''Interprets a big-endian sequence of bytes as an integer'''
+    return int.from_bytes(be_bytes, 'big')
+
+
+def int_to_bytes(value):
+    '''Converts an integer to a big-endian sequence of bytes'''
+    return value.to_bytes((value.bit_length() + 7) // 8, 'big')
+
+
+struct_le_i = Struct('<i')
+struct_le_q = Struct('<q')
+struct_le_H = Struct('<H')
+struct_le_I = Struct('<I')
+struct_le_Q = Struct('<Q')
+struct_be_H = Struct('>H')
+struct_be_I = Struct('>I')
+structB = Struct('B')
+
+unpack_le_int32_from = struct_le_i.unpack_from
+unpack_le_int64_from = struct_le_q.unpack_from
+unpack_le_uint16_from = struct_le_H.unpack_from
+unpack_le_uint32_from = struct_le_I.unpack_from
+unpack_le_uint64_from = struct_le_Q.unpack_from
+unpack_be_uint16_from = struct_be_H.unpack_from
+unpack_be_uint32_from = struct_be_I.unpack_from
+
+unpack_le_uint32 = struct_le_I.unpack
+unpack_le_uint64 = struct_le_Q.unpack
+unpack_be_uint32 = struct_be_I.unpack
+
+pack_le_int32 = struct_le_i.pack
+pack_le_int64 = struct_le_q.pack
+pack_le_uint16 = struct_le_H.pack
+pack_le_uint32 = struct_le_I.pack
+pack_le_uint64 = struct_le_Q.pack
+pack_be_uint16 = struct_be_H.pack
+pack_be_uint32 = struct_be_I.pack
+pack_byte = structB.pack
+
+hex_to_bytes = bytes.fromhex
+
+
+def pack_varint(n):
+    if n < 253:
+        return pack_byte(n)
+    if n < 65536:
+        return pack_byte(253) + pack_le_uint16(n)
+    if n < 4294967296:
+        return pack_byte(254) + pack_le_uint32(n)
+    return pack_byte(255) + pack_le_uint64(n)
+
+
+def pack_varbytes(data):
+    return pack_varint(len(data)) + data
 
 
 def get_bip39_seed_from_mnemonic(mnemonic: str, passphrase='') -> bytes:
@@ -77,6 +135,21 @@ def base64url_decode(content):
 
 def base64url_encode(content):
     return base64.urlsafe_b64encode(content).replace(b'=', b'')
+
+
+def bytes_to_hexstring(data, reverse=True):
+    if reverse:
+        return ''.join(reversed(['{:02x}'.format(v) for v in data]))
+    else:
+        return ''.join(['{:02x}'.format(v) for v in data])
+
+
+def hexstring_to_bytes(s: str, reverse=True):
+    if reverse:
+        return bytes(
+            reversed([int(s[x:x + 2], 16) for x in range(0, len(s), 2)]))
+    else:
+        return bytes([int(s[x:x + 2], 16) for x in range(0, len(s), 2)])
 
 
 def get_did_document(did: str, net: str):

@@ -24,13 +24,12 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import hashlib
+import hmac
 from binascii import hexlify
 from io import BytesIO
 
-import hmac
-import hashlib
-
-from utils import (
+from lib.util import (
     encode_base58_checksum,
     hash160
 )
