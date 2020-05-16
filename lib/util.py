@@ -92,6 +92,19 @@ def pack_varint(n):
 def pack_varbytes(data):
     return pack_varint(len(data)) + data
 
+def strElaToIntSela(value: str) -> int:
+    dotLocation = value.find(".")
+    if dotLocation == -1:
+        value_sela = int(value) * 100000000
+        return value_sela
+    else:
+        front = value[:dotLocation]
+        end = value[dotLocation + 1:]
+        assert len(end) <= 8
+        end = end + "0" * (8 - len(end))
+        value_sela = int(front) * 100000000 + int(end)
+        return value_sela
+
 
 def get_bip39_seed_from_mnemonic(mnemonic: str, passphrase='') -> bytes:
     seed = Mnemonic.to_seed(mnemonic=mnemonic, passphrase=passphrase)
@@ -176,6 +189,17 @@ def get_publickey_from_did(did: str, net="mainnet") -> str:
             _pubKey = base58.b58decode(_key["publicKeyBase58"]).hex()
     return _pubKey
 
+def get_name_from_did(did: str, net="mainnet") -> str:
+    if len(did) != 34:
+        did = did.replace("did:", "").replace("elastos:", "")
+    assert len(did) == 34
+    _document = get_did_document(did, net)
+    _vcs = _document["verifiableCredential"]
+    _did_name = ""
+    for _vc in _vcs:
+        if _vc["id"] == "#name":
+            _did_name = _vc['credentialSubject']['name']
+    return _did_name
 
 # decode jwt and verify the signature
 class JWT:
