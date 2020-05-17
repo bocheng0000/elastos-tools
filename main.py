@@ -8,15 +8,16 @@
 @file: main
 @time: 2020/3/16 17:58
 """
+import json
 from lib import util, keys, hd
 
 if __name__ == '__main__':
-    print('Example-1: get DID from jwt-token')
+    print('Example-1: Get DID from jwt-token')
     jwt_token = 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkaWQ6ZWxhc3RvczppWXBRTXdoZUR4eVNxaXZvY1NKYW9wcmNvRFRxUXNEWUF1IiwiY2FsbGJhY2t1cmwiOiJodHRwczovL3N0YWdpbmctYXBpLmN5YmVycmVwdWJsaWMub3JnL2FwaS91c2VyL2xvZ2luLWNhbGxiYWNrLWVsYSIsIm5vbmNlIjoiOWVkMzFlNzQtOTU5Mi00ZjFmLWE4MDctODkxZjI4NTg1NjYxIiwiY2xhaW1zIjp7fSwid2Vic2l0ZSI6eyJkb21haW4iOiJodHRwczovL3N0YWdpbmcuY3liZXJyZXB1YmxpYy5vcmciLCJsb2dvIjoiaHR0cHM6Ly9zdGFnaW5nLmN5YmVycmVwdWJsaWMub3JnL2Fzc2V0cy9pbWFnZXMvbG9nby5zdmcifSwiaWF0IjoxNTg0Nzk5NzU0LCJleHAiOjE1ODU0MDQ1NTR9.2W5CSuDgm60eJYvSi_ekujfAb84OIvau7OKCvXM6ZRPWAmrk3f4AaFULr2Syxtd9GH9P_4-_QyJXo-TAADLAUw'
     did = util.get_did_from_jwt(jwt_token)
     print(f'DID:\n{did}')
 
-    print('\nExample-2: get public key from DID')
+    print('\nExample-2: Get public key from DID')
     public_key_str = util.get_publickey_from_did(did=did, net='regtest')
     print(f'Compressed Public Key:\n{public_key_str}')
 
@@ -31,13 +32,19 @@ if __name__ == '__main__':
     print(f"Public Key'x:[{hex(pubKey.verifying_key.pubkey.point.x())}]")
     print(f"Public Key'y:[{hex(pubKey.verifying_key.pubkey.point.y())}]")
 
-    # Verify JWT-Token
+    print('\nExample-3: Get DID-Name from DID/DIDDocument')
+    did = 'inDUQR73UQLFfgZocbC3PH4SFiRggffcNw'
+    did_name = util.get_name_from_did(did, net='regtest')
+    print(f'DID\'s name is {did_name}')
+
+    print('\nExample-4: Verify JWT-Token')
     jwt_decode = util.JWT.decode(jwt_token=jwt_token, key=public_key_pem,
                                  verify=True)
-    print(f'JWT-Payload:\n{jwt_decode}')
+    print(
+        f'JWT-Payload:\n{json.dumps(jwt_decode, indent=4, ensure_ascii=False)}')
 
     print(
-        f'\nExample-3: get DID, address, private key, public key from mnemonic word')
+        f'\nExample-5: get DID, address, private key, public key from mnemonic word')
     mnemonic_word = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'
     passphrase = ''
     private_keys = hd.get_private_key_from_mnemonic(mnemonic=mnemonic_word,
