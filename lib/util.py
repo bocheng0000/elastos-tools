@@ -27,6 +27,7 @@
 
 import base58
 import base64
+import csv
 import hashlib
 import json
 import jwt
@@ -92,7 +93,8 @@ def pack_varint(n):
 def pack_varbytes(data):
     return pack_varint(len(data)) + data
 
-def strElaToIntSela(value: str) -> int:
+
+def strELAToIntSela(value: str) -> int:
     dotLocation = value.find(".")
     if dotLocation == -1:
         value_sela = int(value) * 100000000
@@ -104,6 +106,12 @@ def strElaToIntSela(value: str) -> int:
         end = end + "0" * (8 - len(end))
         value_sela = int(front) * 100000000 + int(end)
         return value_sela
+
+
+def selaToELA(value: int) -> str:
+    front = int(value / 100000000)
+    after = value % 100000000
+    return str(front) + "." + str(after)
 
 
 def get_bip39_seed_from_mnemonic(mnemonic: str, passphrase='') -> bytes:
@@ -189,6 +197,7 @@ def get_publickey_from_did(did: str, net="mainnet") -> str:
             _pubKey = base58.b58decode(_key["publicKeyBase58"]).hex()
     return _pubKey
 
+
 def get_name_from_did(did: str, net="mainnet") -> str:
     if len(did) != 34:
         did = did.replace("did:", "").replace("elastos:", "")
@@ -225,3 +234,24 @@ class JWT:
 def get_did_from_jwt(jwt_token):
     _payload = JWT.decode(jwt_token, verify=False)
     return _payload['iss']
+
+class CsvReader(object):
+
+    def __init__(self, csv_file, count=4):
+        self.csv = csv_file
+        self.itme_count = count
+
+    def parse(self):
+        csvFile = open(self.csv, "r")
+        reader = csv.reader(csvFile)
+        result = []
+        with open(self.csv, "r") as file:
+            reader = csv.reader(csvFile)
+            for item in reader:
+                if reader.line_num == 1:
+                    continue
+                _items = []
+                for i in range(self.itme_count):
+                    _items.append(item[i])
+                result.append(_items)
+        return result
