@@ -242,11 +242,9 @@ class CsvReader(object):
         self.itme_count = count
 
     def parse(self):
-        csvFile = open(self.csv, "r")
-        reader = csv.reader(csvFile)
         result = []
         with open(self.csv, "r") as file:
-            reader = csv.reader(csvFile)
+            reader = csv.reader(file)
             for item in reader:
                 if reader.line_num == 1:
                     continue

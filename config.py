@@ -12,3 +12,6 @@ withdraw_contract_address_test = "0x491bC043672B9286fA02FA7e0d6A3E5A0384A31A"
 withdraw_contract_address_mainnet = "0xC445f9487bF570fF508eA9Ac320b59730e81e503"
 withdraw_fee = 100000000000000
 withdraw_gas = 3000000
+
+token_contract_address = "0xFDce7FB4050CD43C654C6ceCeAd950343990cE75"
+token_contract_address_mainnet = "0xa4E4A46b228f3658E96bF782741c67db9e1ef91c"
