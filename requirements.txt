@@ -1,5 +1,5 @@
 base58==2.0.0
-cryptography==2.8
+cryptography==3.2
 ecdsa==0.15
 mnemonic==0.19
 PyJWT==1.7.1
